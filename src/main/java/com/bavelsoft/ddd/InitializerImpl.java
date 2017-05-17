@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Set;
+import java.util.Collection;
 
 public class InitializerImpl<T,I extends T,R> implements Initializer<T,I,R> {
 	private final List<BiConsumer<I,?>> defaultSetters = new ArrayList<>();
@@ -24,7 +24,7 @@ public class InitializerImpl<T,I extends T,R> implements Initializer<T,I,R> {
 		validationFunctions.add(validationFunction);
 	}
 
-	public T initialize(I object, Set<R> validationResults) {
+	public T initialize(I object, Collection<R> validationResults) {
 		assignDefaults(object);
 		validate(object, validationResults);
 		return object;
@@ -42,7 +42,7 @@ public class InitializerImpl<T,I extends T,R> implements Initializer<T,I,R> {
 		}
 	}
 
-	private void validate(T object, Set<R> validationResults) {
+	private void validate(T object, Collection<R> validationResults) {
 		int i=0;
 		for (Predicate<T> validationPredicate : validationPredicates) {
 			if (validationPredicate.test(object)) {

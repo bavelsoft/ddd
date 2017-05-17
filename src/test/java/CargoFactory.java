@@ -2,9 +2,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import com.bavelsoft.ddd.Initializer;
 import com.bavelsoft.ddd.InitializerImpl;
+import com.bavelsoft.ddd.Uninitialized;
 import javax.inject.Singleton;
 import javax.inject.Inject;
-import java.util.Set;
+import java.util.Collection;
 
 @Singleton
 public class CargoFactory {
@@ -39,13 +40,14 @@ class CargoImpl implements Cargo, UninitializedCargo {
 		return delivery;
 	}
 
-	public Cargo init(Set<ValidationResult> validationResults) {
+	public Cargo validate(Collection<ValidationResult> validationResults) {
 		return initializer.initialize(this, validationResults);
 	}
 }
 
-interface UninitializedCargo {
+interface UninitializedCargo extends Uninitialized<Cargo,ValidationResult> {
 	public void setDelivery(Delivery delivery);
+	public Cargo validate(Collection<ValidationResult> validationResults);
 }
 
 interface Cargo {
