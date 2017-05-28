@@ -4,51 +4,63 @@ import java.util.Collection;
 import java.util.List;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class Transaction<R> {
+public class Transaction<T,R> {
 	private Collection<R> validationResults;
-	private List<Uninitialized<?,R>> uninitializeds;
-	private List<Object> initializeds;
+	private List<Object> inputs;
 	private List<Consumer<?>> steps;
+	private Object currentInput;
 
-	public Transaction<R> begin() {
+	public Transaction() {
+		begin();
+	}
+
+	public Transaction<T,R> begin() {
 		validationResults = new HashSet<>();
-		uninitializeds = new ArrayList<>();
-		initializeds = new ArrayList<>();
+		inputs = new ArrayList<>();
 		steps = new ArrayList<>();
+		currentInput = null;
 		return this;
 	}
 
 	public Collection<R> validate() {
-		int i=0;
-		for (Uninitialized<?,R> uninitialized : uninitializeds) {
-			if (uninitialized != null)
-				initializeds.set(i, uninitialized.validate(validationResults));			
-			i++;
-		}
 		return validationResults;
 	}
 
 	public void commit() {
 		int i=0;
 		for (Consumer step : steps) {
-			step.accept(initializeds.get(i));
+			step.accept(inputs.get(i));
 			i++;
 		}
 	}
 
-	public <T> Transaction<R> add(Uninitialized<T,R> uninitialized, Consumer<T> step) {
-		uninitializeds.add(uninitialized);
-		initializeds.add(null);
-		steps.add(step);
-		return this;
+	public <T> Transaction<T,R> with(Uninitialized<T,R> uninitialized) {
+		currentInput = uninitialized.validate(validationResults);
+		return (Transaction<T,R>)this;
 	}
 
-	public <T> Transaction<R> add(T initialized, Consumer<T> step) {
-		uninitializeds.add(null);
-		initializeds.add(initialized);
+	public <T> Transaction<T,R> with(T initialized) {
+		currentInput = initialized;
+		return (Transaction<T,R>)this;
+	}
+
+	public <T> Transaction<T,R> add(Consumer<T> step) {
+		inputs.add(currentInput);
 		steps.add(step);
-		return this;
+		return (Transaction<T,R>)this;
+	}
+
+	public <S> Transaction<S,R> nowWith(Uninitialized<S,R> uninitialized, BiConsumer<S,T> step) {
+		step.accept((S)uninitialized.validate(validationResults), (T)currentInput);
+		currentInput = step;
+		return (Transaction<S,R>)this;
+	}
+
+	public Transaction<T,R> now(Consumer<T> step) {
+		step.accept((T)currentInput);
+		return (Transaction<T,R>)this;
 	}
 }
