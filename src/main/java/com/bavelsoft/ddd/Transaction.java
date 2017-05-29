@@ -25,8 +25,12 @@ public class Transaction<T,R> {
 		return this;
 	}
 
-	public Collection<R> validate() {
+	public Collection<R> getValidationResults() {
 		return validationResults;
+	}
+
+	public boolean isValid() {
+		return validationResults.isEmpty();
 	}
 
 	public void commit() {
