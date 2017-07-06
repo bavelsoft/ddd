@@ -58,8 +58,9 @@ public class Transaction<T,R> {
 	}
 
 	public <S> Transaction<S,R> nowWith(Uninitialized<S,R> uninitialized, BiConsumer<S,T> step) {
-		step.accept((S)uninitialized.validate(validationResults), (T)currentInput);
-		currentInput = step;
+		Object nextInput = uninitialized.validate(validationResults);
+		step.accept((S)nextInput, (T)currentInput);
+		currentInput = nextInput;
 		return (Transaction<S,R>)this;
 	}
 
