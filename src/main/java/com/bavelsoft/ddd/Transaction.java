@@ -36,8 +36,10 @@ public class Transaction<T,R> {
 	public void commit() {
 		int i=0;
 		for (Consumer step : steps) {
-			step.accept(inputs.get(i));
-			i++;
+			Object input = inputs.get(i++);
+			step.accept(input);
+			if (input instanceof Observable)
+				((Observable)input).notifyObservers();
 		}
 	}
 
@@ -68,4 +70,5 @@ public class Transaction<T,R> {
 		step.accept((T)currentInput);
 		return (Transaction<T,R>)this;
 	}
+
 }
