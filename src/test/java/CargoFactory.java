@@ -1,7 +1,6 @@
 import java.util.function.Function;
 import java.util.function.Predicate;
 import com.bavelsoft.ddd.Initializer;
-import com.bavelsoft.ddd.InitializerImpl;
 import com.bavelsoft.ddd.Uninitialized;
 import javax.inject.Singleton;
 import javax.inject.Inject;
@@ -9,7 +8,7 @@ import java.util.Collection;
 
 @Singleton
 public class CargoFactory {
-	private InitializerImpl<Cargo, CargoImpl, ValidationResult> init = new InitializerImpl<>();
+	private Initializer<Cargo, CargoImpl, ValidationResult> init = new Initializer<>();
 
 	@Inject public void setFooValidation(FooValidater v) {
 		init.addValidation(c->new ValidationResult(v), v);
