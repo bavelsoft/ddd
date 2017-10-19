@@ -38,8 +38,6 @@ public class Transaction<T,R> {
 		for (Consumer step : steps) {
 			Object input = inputs.get(i++);
 			step.accept(input);
-			if (input instanceof Observable)
-				((Observable)input).notifyObservers();
 		}
 	}
 

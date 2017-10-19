@@ -13,7 +13,6 @@ public class Initializer<T,I extends T,R> {
 	private final List<Function<T,?>> defaultFunctions = new ArrayList<>();
 	private final List<Predicate<T>> validationPredicates = new ArrayList<>();
 	private final List<Function<T,R>> validationFunctions  = new ArrayList<>();
-	private final List<Observer<T,Object>> observers = new ArrayList<>();
 
 	public <F> void addDefault(BiConsumer<I,F> defaultSetter, Function<T,F> defaultFunction) {
 		defaultSetters.add(defaultSetter);
@@ -23,17 +22,6 @@ public class Initializer<T,I extends T,R> {
 	public void addValidation(Function<T,R> validationFunction, Predicate<T> validationPredicate) {
 		validationPredicates.add(validationPredicate);
 		validationFunctions.add(validationFunction);
-	}
-
-	public void addObserver(Observer<T,Object> observer) {
-		observers.add(observer);
-	}
-
-	public void notifyObservers(T observed) {
-		for (Observer<T,Object> observer : observers) {
-			Object beforeValue = observer.getBeforeChange(observed);
-			observer.onChange(observed, beforeValue);
-		}
 	}
 
 	public T initialize(I object, Collection<R> validationResults) {
